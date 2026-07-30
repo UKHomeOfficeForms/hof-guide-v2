@@ -18,6 +18,7 @@ concurrency:
 env:
   NODE_VERSION: 24.15.0
   VITEPRESS_BASE: ${{ vars.VITEPRESS_BASE }}
+  PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}
 
 jobs:
   build:
@@ -27,11 +28,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set GitHub Pages base path
+      - name: Resolve VitePress base path
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          BASE_TO_USE="$VITEPRESS_BASE"
+
           if [ -z "$VITEPRESS_BASE" ]; then
-            echo "VITEPRESS_BASE=/${GITHUB_REPOSITORY#*/}/" >> "$GITHUB_ENV"
+            PAGES_URL=$(curl -fsSL \
+              -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+              | node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(data.html_url || '')" \
+              || true)
+
+            if [ -n "$PAGES_URL" ]; then
+              BASE_PATH=$(node -e "const u=process.argv[1];const p=new URL(u).pathname.replace(/\\/+$/,'');process.stdout.write(p || '/')" "$PAGES_URL")
+              BASE_TO_USE="${BASE_PATH}/"
+            else
+              BASE_TO_USE="/"
+            fi
           fi
+
+          echo "VITEPRESS_BASE=$BASE_TO_USE" >> "$GITHUB_ENV"
+          echo "Using VITEPRESS_BASE=$BASE_TO_USE"
+
+      - name: Write CNAME (optional)
+        if: ${{ env.PAGES_CUSTOM_DOMAIN != '' }}
+        run: |
+          printf '%s\n' "$PAGES_CUSTOM_DOMAIN" > public/CNAME
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

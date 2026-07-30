@@ -99,15 +99,29 @@ After creating the repository:
 3. Set **Build and deployment** > **Source** to **GitHub Actions**.
 4. Push to `main` or run the workflow manually.
 
-For a normal project Pages URL, such as `https://<org>.github.io/<repo>/`, the workflow automatically sets the VitePress base path to `/<repo>/`.
+By default, the workflow reads the repository Pages URL from the GitHub API and sets `VITEPRESS_BASE` from that URL path automatically.
 
-If the site is published at the domain root, for example through a custom domain, set a repository Actions variable:
+If you want to force a specific base path, set a repository Actions variable:
+
+```text
+VITEPRESS_BASE=/hof-guide/
+```
+
+For root-domain hosting, set:
 
 ```text
 VITEPRESS_BASE=/
 ```
 
-To test a project Pages build locally, run:
+If you want a fixed public hostname instead of an auto-generated `*.pages.github.io` domain, configure a custom domain and set:
+
+```text
+PAGES_CUSTOM_DOMAIN=docs.example.gov.uk
+```
+
+The workflow writes this value to `public/CNAME` during deployment.
+
+To test a non-root Pages build locally, run:
 
 ```bash
 VITEPRESS_BASE=/hof-guide/ yarn build

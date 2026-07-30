@@ -11,7 +11,173 @@ body {
 }
 
 .govuk-header__container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
   border-bottom-color: #1d70b8;
+}
+
+.govuk-header__logo {
+  flex: 1 1 auto;
+}
+
+.app-header-search {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.app-header-search .VPNavBarSearch {
+  margin-top: 0;
+}
+
+.app-header-search .DocSearch {
+  --docsearch-primary-color: #1d70b8;
+  --docsearch-searchbox-background: #ffffff;
+  --docsearch-searchbox-focus-background: #ffffff;
+  --docsearch-text-color: #0b0c0c;
+  --docsearch-muted-color: #505a5f;
+  --docsearch-key-gradient: #f3f2f1;
+  --docsearch-key-shadow: none;
+}
+
+.DocSearch-Container,
+.DocSearch-Modal {
+  color-scheme: light;
+}
+
+.DocSearch {
+  --docsearch-container-background: rgba(11, 12, 12, 0.65);
+  --docsearch-modal-background: #ffffff;
+  --docsearch-searchbox-background: #f3f2f1;
+  --docsearch-searchbox-focus-background: #ffffff;
+  --docsearch-hit-background: #ffffff;
+  --docsearch-hit-color: #0b0c0c;
+  --docsearch-hit-shadow: 0 0 0 1px #b1b4b6 inset;
+  --docsearch-hit-active-color: #0b0c0c;
+  --docsearch-hit-active-background: #ffdd00;
+  --docsearch-text-color: #0b0c0c;
+  --docsearch-muted-color: #505a5f;
+  --docsearch-footer-background: #f3f2f1;
+}
+
+.dark .DocSearch {
+  --docsearch-container-background: rgba(11, 12, 12, 0.75);
+  --docsearch-modal-background: #ffffff;
+  --docsearch-searchbox-background: #f3f2f1;
+  --docsearch-searchbox-focus-background: #ffffff;
+  --docsearch-hit-background: #ffffff;
+  --docsearch-hit-color: #0b0c0c;
+  --docsearch-hit-shadow: 0 0 0 1px #b1b4b6 inset;
+  --docsearch-hit-active-color: #0b0c0c;
+  --docsearch-hit-active-background: #ffdd00;
+  --docsearch-text-color: #0b0c0c;
+  --docsearch-muted-color: #505a5f;
+  --docsearch-footer-background: #f3f2f1;
+}
+
+.DocSearch-Form {
+  border: 2px solid #0b0c0c;
+}
+
+.DocSearch-Form:focus-within {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+/* VitePress local search modal uses VP theme variables, not DocSearch variables. */
+.VPLocalSearchBox,
+.dark .VPLocalSearchBox {
+  --vp-local-search-bg: #ffffff !important;
+  --vp-local-search-result-bg: #ffffff !important;
+  --vp-local-search-result-border: #b1b4b6 !important;
+  --vp-local-search-result-selected-bg: #fff9cc !important;
+  --vp-local-search-result-selected-border: #1d70b8 !important;
+  --vp-local-search-highlight-bg: #ffdd00 !important;
+  --vp-local-search-highlight-text: #0b0c0c !important;
+  --vp-backdrop-bg-color: rgba(11, 12, 12, 0.65) !important;
+}
+
+.VPLocalSearchBox .shell {
+  background: #ffffff !important;
+  color: #0b0c0c !important;
+  border: 1px solid #b1b4b6;
+}
+
+.VPLocalSearchBox .search-bar {
+  background: #ffffff !important;
+  border: 2px solid #0b0c0c !important;
+}
+
+.VPLocalSearchBox .search-bar:focus-within {
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+}
+
+.VPLocalSearchBox .search-input,
+.VPLocalSearchBox .titles,
+.VPLocalSearchBox .title,
+.VPLocalSearchBox .excerpt,
+.VPLocalSearchBox .search-keyboard-shortcuts,
+.VPLocalSearchBox .search-actions button {
+  color: #0b0c0c !important;
+}
+
+.VPLocalSearchBox .result {
+  background: #ffffff !important;
+}
+
+.VPLocalSearchBox .result.selected {
+  background: #fff9cc !important;
+}
+
+.app-header-search .DocSearch-Button {
+  margin: 0;
+  padding: 0 8px;
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  height: 40px;
+  border: 2px solid #ffffff;
+  border-radius: 0;
+  background: #ffffff;
+  box-shadow: none;
+}
+
+.app-header-search .DocSearch-Button:hover {
+  border-color: #b1b4b6;
+  background: #ffffff;
+}
+
+.app-header-search .DocSearch-Button:focus,
+.app-header-search .DocSearch-Button:focus-visible {
+  border: 2px solid #0b0c0c;
+  outline: 3px solid #ffdd00;
+  outline-offset: 0;
+  box-shadow: inset 0 0 0 2px #0b0c0c;
+}
+
+.app-header-search .DocSearch-Button-Container {
+  width: 100%;
+}
+
+.app-header-search .DocSearch-Search-Icon {
+  width: 18px;
+  height: 18px;
+  color: #0b0c0c;
+}
+
+.app-header-search .DocSearch-Button-Placeholder {
+  font-family: "GDS Transport", arial, sans-serif;
+  font-size: 19px;
+  font-weight: 400;
+  color: #0b0c0c;
+}
+
+.app-header-search .DocSearch-Button-Keys {
+  display: none;
 }
 
 .govuk-main-wrapper {
@@ -95,8 +261,8 @@ body {
 .app-prose div[class*="language-"] {
   position: relative;
   margin: 20px 0 30px;
-  border-left: 5px solid #b1b4b6;
-  background: #f3f2f1;
+  border-left: 5px solid var(--vp-c-divider);
+  background: var(--vp-code-block-bg);
   overflow-x: auto;
 }
 
@@ -115,6 +281,7 @@ body {
 .app-prose pre code {
   padding: 0;
   background: transparent;
+  color: var(--vp-code-color);
   font-size: 16px;
   line-height: 1.5;
 }
@@ -153,6 +320,21 @@ body {
 }
 
 @media (max-width: 40.0525em) {
+  .govuk-header__container {
+    display: block;
+  }
+
+  .app-header-search {
+    margin-top: 8px;
+    justify-content: flex-start;
+  }
+
+  .app-header-search .DocSearch-Button {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
   .app-doc-nav {
     margin-bottom: 30px;
     padding-bottom: 10px;

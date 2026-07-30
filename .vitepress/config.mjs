@@ -101,7 +101,21 @@ export default {
       cssMinify: false
     }
   },
-  themeConfig: {},
+  themeConfig: {
+    appearance: false,
+    search: {
+      provider: 'local',
+      options: {
+        detailedView: true,
+        translations: {
+          button: {
+            buttonText: 'Search Guide',
+            buttonAriaLabel: 'Search guide'
+          }
+        }
+      }
+    }
+  },
   head: [
     ['meta', { name: 'theme-color', content: '#1d70b8' }],
     ['link', { rel: 'icon', href: withBasePath('/assets/images/favicon.svg'), type: 'image/svg+xml' }],

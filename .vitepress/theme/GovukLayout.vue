@@ -1,5 +1,6 @@
 <script setup>
 import { Content, useData, useRoute, withBase } from 'vitepress';
+import { VPNavBarSearch } from 'vitepress/theme';
 import { computed } from 'vue';
 import { flatDocs, sections, serviceNav } from './navigation';
 
@@ -109,6 +110,9 @@ const isServiceNavActive = href => {
           </svg>
           <span class="govuk-header__product-name">Home Office Forms Guide</span>
         </a>
+      </div>
+      <div class="govuk-header__content app-header-search">
+        <VPNavBarSearch />
       </div>
     </div>
   </header>

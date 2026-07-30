@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120" role="img" aria-labelledby="title">
+  <title id="title">HOF Guide</title>
+  <rect width="120" height="120" rx="18" fill="#003078"/>
+  <path d="M28 28h64v64H28z" fill="#ffffff"/>
+  <path d="M39 44h42v8H39zm0 16h42v8H39zm0 16h26v8H39z" fill="#1d70b8"/>
+</svg>
+

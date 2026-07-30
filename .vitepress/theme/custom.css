@@ -1,0 +1,161 @@
+html,
+body {
+  margin: 0;
+  color: #0b0c0c;
+  background: #ffffff;
+  font-family: "GDS Transport", arial, sans-serif;
+}
+
+.govuk-header {
+  --govuk-brand-colour: #0b0c0c;
+}
+
+.govuk-header__container {
+  border-bottom-color: #1d70b8;
+}
+
+.govuk-main-wrapper {
+  min-height: 60vh;
+}
+
+.app-doc-nav {
+  margin-bottom: 30px;
+}
+
+.app-doc-nav__section {
+  border-top: 1px solid #b1b4b6;
+  padding-top: 15px;
+  padding-bottom: 5px;
+}
+
+.app-doc-nav__heading {
+  margin-bottom: 10px;
+}
+
+.app-doc-nav__list {
+  margin-bottom: 10px;
+}
+
+.app-doc-nav__item {
+  margin-bottom: 8px;
+}
+
+.app-doc-nav__link {
+  display: block;
+  padding: 4px 0 4px 12px;
+  border-left: 4px solid transparent;
+  text-decoration: none;
+}
+
+.app-doc-nav__link:hover {
+  text-decoration: underline;
+}
+
+.app-doc-nav__link--active {
+  border-left-color: #1d70b8;
+  color: #0b0c0c;
+  font-weight: 700;
+}
+
+.app-prose {
+  max-width: 760px;
+}
+
+.app-prose--home {
+  max-width: none;
+}
+
+.app-prose h1:first-child {
+  margin-top: 0;
+}
+
+.app-prose .header-anchor {
+  position: absolute;
+  margin-left: -1em;
+  padding-right: 0.25em;
+  opacity: 0;
+  text-decoration: none;
+}
+
+.app-prose h1:hover .header-anchor,
+.app-prose h2:hover .header-anchor,
+.app-prose h3:hover .header-anchor,
+.app-prose h4:hover .header-anchor {
+  opacity: 1;
+}
+
+.app-prose code {
+  padding: 2px 4px;
+  color: #0b0c0c;
+  background: #f3f2f1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.9em;
+}
+
+.app-prose div[class*="language-"] {
+  position: relative;
+  margin: 20px 0 30px;
+  border-left: 5px solid #b1b4b6;
+  background: #f3f2f1;
+  overflow-x: auto;
+}
+
+.app-prose div[class*="language-"]::before,
+.app-prose div[class*="language-"] .copy,
+.app-prose div[class*="language-"] .lang {
+  display: none;
+}
+
+.app-prose pre {
+  margin: 0;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.app-prose pre code {
+  padding: 0;
+  background: transparent;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.app-prose .line-numbers-wrapper {
+  display: none;
+}
+
+.app-prose .custom-block {
+  margin: 20px 0;
+  padding: 15px;
+  border-left: 5px solid #1d70b8;
+  background: #f3f2f1;
+}
+
+.app-prose .custom-block-title {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.app-prose .custom-block.tip {
+  border-left-color: #00703c;
+}
+
+.app-prose .custom-block.warning {
+  border-left-color: #f47738;
+}
+
+.app-home-section {
+  margin-top: 45px;
+}
+
+.govuk-pagination {
+  margin-top: 45px;
+}
+
+@media (max-width: 40.0525em) {
+  .app-doc-nav {
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #b1b4b6;
+  }
+}

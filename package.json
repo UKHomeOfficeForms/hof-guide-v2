@@ -1,0 +1,23 @@
+{
+  "name": "hof-guide-v2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Documentation service for the Home Office Forms framework",
+  "type": "module",
+  "packageManager": "yarn@1.22.22",
+  "scripts": {
+    "dev": "vitepress dev .",
+    "build": "vitepress build .",
+    "preview": "vitepress preview ."
+  },
+  "engines": {
+    "node": "^24.15.0 && <25.0.0"
+  },
+  "devDependencies": {
+    "govuk-frontend": "^6.4.0",
+    "vitepress": "^1.6.4"
+  },
+  "overrides": {
+    "vite": "6.4.3"
+  }
+}

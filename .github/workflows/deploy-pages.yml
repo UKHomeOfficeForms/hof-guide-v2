@@ -18,6 +18,7 @@ concurrency:
 env:
   NODE_VERSION: 24.15.0
   VITEPRESS_BASE: ${{ vars.VITEPRESS_BASE }}
+  VITEPRESS_BASE_FORCE: ${{ vars.VITEPRESS_BASE_FORCE }}
   PAGES_CUSTOM_DOMAIN: ${{ vars.PAGES_CUSTOM_DOMAIN }}
 
 jobs:
@@ -32,22 +33,40 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BASE_TO_USE="$VITEPRESS_BASE"
+          normalise_base() {
+            node -e "const input=process.argv[1] || '/'; if (input === '/') { process.stdout.write('/'); process.exit(0); } const clean='/' + input.replace(/^\/+|\/+$/g, '') + '/'; process.stdout.write(clean);" "$1"
+          }
 
-          if [ -z "$VITEPRESS_BASE" ]; then
-            PAGES_URL=$(curl -fsSL \
-              -H "Authorization: Bearer $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
-              | node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(data.html_url || '')" \
-              || true)
+          PAGES_URL=$(curl -fsSL \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/pages" \
+            | node -e "const fs=require('fs');const data=JSON.parse(fs.readFileSync(0,'utf8'));process.stdout.write(data.html_url || '')" \
+            || true)
 
-            if [ -n "$PAGES_URL" ]; then
-              BASE_PATH=$(node -e "const u=process.argv[1];const p=new URL(u).pathname.replace(/\\/+$/,'');process.stdout.write(p || '/')" "$PAGES_URL")
-              BASE_TO_USE="${BASE_PATH}/"
-            else
-              BASE_TO_USE="/"
+          if [ -n "$PAGES_URL" ]; then
+            DETECTED_BASE=$(node -e "const u=process.argv[1];const p=new URL(u).pathname.replace(/\\/+$/,'');process.stdout.write(p || '/')" "$PAGES_URL")
+            DETECTED_BASE=$(normalise_base "$DETECTED_BASE")
+          else
+            DETECTED_BASE="/"
+          fi
+
+          BASE_TO_USE="$DETECTED_BASE"
+
+          if [ -n "$VITEPRESS_BASE" ]; then
+            REQUESTED_BASE=$(normalise_base "$VITEPRESS_BASE")
+            if [ "$VITEPRESS_BASE_FORCE" = "true" ]; then
+              BASE_TO_USE="$REQUESTED_BASE"
+              echo "VITEPRESS_BASE_FORCE=true, using explicit base: $BASE_TO_USE"
+            elif [ "$REQUESTED_BASE" != "$DETECTED_BASE" ]; then
+              echo "::warning::Ignoring VITEPRESS_BASE=$REQUESTED_BASE because Pages URL indicates base $DETECTED_BASE. Set VITEPRESS_BASE_FORCE=true to override."
             fi
+          fi
+
+          if [ -n "$PAGES_URL" ]; then
+            echo "Detected Pages URL: $PAGES_URL"
+          else
+            echo "::warning::Could not read Pages URL from API. Using base '$BASE_TO_USE'."
           fi
 
           echo "VITEPRESS_BASE=$BASE_TO_USE" >> "$GITHUB_ENV"

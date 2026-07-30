@@ -101,16 +101,18 @@ After creating the repository:
 
 By default, the workflow reads the repository Pages URL from the GitHub API and sets `VITEPRESS_BASE` from that URL path automatically.
 
-If you want to force a specific base path, set a repository Actions variable:
+This avoids the most common cause of unstyled Pages deployments (base path mismatch).
+
+- Public project site URL like `https://ukhomeofficeforms.github.io/hof-guide-v2/` -> detected base `/hof-guide-v2/`
+- Private Pages URL like `https://<unique>.pages.github.io/` -> detected base `/`
+
+If you set `VITEPRESS_BASE` and it does not match the detected Pages URL path, the workflow ignores it and uses the detected value.
+
+If you intentionally need to override this behaviour, set both:
 
 ```text
-VITEPRESS_BASE=/hof-guide/
-```
-
-For root-domain hosting, set:
-
-```text
-VITEPRESS_BASE=/
+VITEPRESS_BASE=/your-path/
+VITEPRESS_BASE_FORCE=true
 ```
 
 If you want a fixed public hostname instead of an auto-generated `*.pages.github.io` domain, configure a custom domain and set:
@@ -120,6 +122,13 @@ PAGES_CUSTOM_DOMAIN=docs.example.gov.uk
 ```
 
 The workflow writes this value to `public/CNAME` during deployment.
+
+If your site URL is still a random `*.pages.github.io` hostname and you want `https://ukhomeofficeforms.github.io/hof-guide-v2/`, check:
+
+1. The repository is under the `UKHomeOfficeForms` organisation.
+2. The repository name is exactly `hof-guide-v2`.
+3. The Pages visibility is public (private Pages use unique `*.pages.github.io` hostnames).
+4. **Settings > Pages > Build and deployment > Source** is **GitHub Actions**.
 
 To test a non-root Pages build locally, run:
 

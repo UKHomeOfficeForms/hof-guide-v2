@@ -1,0 +1,162 @@
+name: HOF guide sync from framework changes
+
+on:
+  repository_dispatch:
+    types:
+      - hof-framework-changed
+  workflow_dispatch:
+    inputs:
+      hof_owner:
+        description: Framework repository owner
+        required: true
+        default: UKHomeOfficeForms
+      hof_repo:
+        description: Framework repository name
+        required: true
+        default: hof
+      base_sha:
+        description: Base commit SHA
+        required: true
+      head_sha:
+        description: Head commit SHA
+        required: true
+      changelog_notes:
+        description: Changelog notes or release summary
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  create-sync-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout guide repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+
+      - name: Build framework diff context
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOF_OWNER: ${{ github.event.client_payload.hof_owner || inputs.hof_owner || 'UKHomeOfficeForms' }}
+          HOF_REPO: ${{ github.event.client_payload.hof_repo || inputs.hof_repo || 'hof' }}
+          HOF_BASE_SHA: ${{ github.event.client_payload.before_sha || inputs.base_sha }}
+          HOF_HEAD_SHA: ${{ github.event.client_payload.after_sha || inputs.head_sha }}
+          HOF_CHANGELOG_NOTES: ${{ github.event.client_payload.changelog_notes || inputs.changelog_notes || '' }}
+          HOF_SYNC_CONTEXT_JSON: .tmp/hof-sync/context.json
+          HOF_SYNC_REPORT_MD: .tmp/hof-sync/report.md
+        run: node .github/skills/hof-doc-sync/scripts/build-sync-context.mjs
+
+      - name: Upload sync context artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hof-sync-context
+          path: .tmp/hof-sync/
+
+      - name: Create or update sync issue for Copilot
+        id: create-issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const report = fs.readFileSync('.tmp/hof-sync/report.md', 'utf8');
+            const syncContext = JSON.parse(fs.readFileSync('.tmp/hof-sync/context.json', 'utf8'));
+
+            const shortHead = syncContext.compare.head.slice(0, 7);
+            const title = `Sync HOF Guide from framework changes (${shortHead})`;
+            const syncIssueMarker = '<!-- hof-guide-sync-issue -->';
+            const syncHeadMarker = `<!-- hof-guide-sync-head:${syncContext.compare.head} -->`;
+            const initialBody = [
+              'This issue was created automatically from the framework sync workflow.',
+              '',
+              report,
+              '',
+              syncIssueMarker,
+              syncHeadMarker
+            ].join('\n');
+
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100
+            });
+
+            let issue = openIssues.find(item =>
+              !item.pull_request &&
+              (item.body || '').includes(syncIssueMarker) &&
+              (item.body || '').includes(syncHeadMarker)
+            );
+
+            if (!issue) {
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: initialBody
+              });
+              issue = created.data;
+              core.setOutput('issue_action', 'created');
+            } else {
+              core.setOutput('issue_action', 'updated');
+            }
+
+            const finalBody = [
+              'This issue was created automatically from the framework sync workflow.',
+              '',
+              report,
+              '',
+              syncIssueMarker,
+              syncHeadMarker,
+              '',
+              '## Required execution mode',
+              '',
+              '- Assign this issue to Copilot.',
+              '- Select the `HOF Guide Sync Agent` custom agent (or tell Copilot to use `hof-doc-sync`).',
+              `- When opening the PR, include \`Closes #${issue.number}\` in the PR body.`,
+              '- Keep this issue as the source of truth for human-in-the-loop review.'
+            ].join('\n');
+
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              title,
+              body: finalBody
+            });
+
+            core.setOutput('issue_number', String(issue.number));
+            core.setOutput('issue_url', issue.html_url);
+
+      - name: Try to assign issue to Copilot
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          ISSUE_NUMBER: ${{ steps.create-issue.outputs.issue_number }}
+        with:
+          script: |
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: Number(process.env.ISSUE_NUMBER),
+              assignees: ['copilot']
+            });
+
+      - name: Add workflow summary
+        env:
+          ISSUE_URL: ${{ steps.create-issue.outputs.issue_url }}
+          ISSUE_ACTION: ${{ steps.create-issue.outputs.issue_action }}
+        run: |
+          {
+            echo "## HOF guide sync task"
+            echo
+            echo "- Action: ${ISSUE_ACTION}"
+            echo "- Issue: ${ISSUE_URL}"
+            echo "- Context artifact: hof-sync-context"
+          } >> "$GITHUB_STEP_SUMMARY"

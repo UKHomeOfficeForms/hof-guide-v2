@@ -138,6 +138,68 @@ VITEPRESS_BASE=/hof-guide/ yarn build
 
 The `public/.nojekyll` file is included so GitHub Pages serves the generated static files without Jekyll processing.
 
+## Automated guide sync from `hof` framework changes
+
+This repository includes an agentic sync workflow that can be triggered by framework changes in `UKHomeOfficeForms/hof`.
+
+The cross-repository trigger is designed to work with a GitHub App installation token rather than a user PAT.
+
+### What is included
+
+- Guide-side workflow: `.github/workflows/hof-guide-sync-from-hof.yml`
+- PR-to-issue tracking workflow: `.github/workflows/comment-sync-pr-on-issue.yml`
+- Reusable skill: `.github/skills/hof-doc-sync/SKILL.md`
+- Custom agent profile: `.github/agents/hof-guide-sync.agent.md`
+- Diff context generator: `.github/skills/hof-doc-sync/scripts/build-sync-context.mjs`
+
+### Intended flow
+
+1. A change is merged to `hof` (`master`/`main`).
+2. `hof` workflow dispatches `hof-framework-changed` to this repository.
+3. This repository builds a sync context from:
+   - framework compare diff (`before_sha...after_sha`)
+   - latest changelog section
+4. A sync issue is created for Copilot/human review.
+5. Copilot uses the `HOF Guide Sync Agent` (or `hof-doc-sync` skill), opens a PR with `Closes #<sync-issue-number>` in the body, and a workflow comments the PR link back onto the sync issue.
+
+Repeated dispatches for the same framework head SHA update the existing open sync issue instead of creating duplicates.
+
+### Setup required
+
+#### In `UKHomeOfficeForms/hof`
+
+The workflow `.github/workflows/notify-hof-guide-sync.yml` expects:
+
+- Repository variable: `HOF_GUIDE_SYNC_APP_ID`
+  - GitHub App ID for the app used to dispatch to the guide repository
+- Repository secret: `HOF_GUIDE_SYNC_APP_PRIVATE_KEY`
+  - Private key for that GitHub App
+- Optional repository variable: `HOF_GUIDE_SYNC_APP_OWNER`
+  - Default: `UKHomeOfficeForms`
+- Optional repository variable: `HOF_GUIDE_REPO`
+  - Default: `UKHomeOfficeForms/hof-guide-v2`
+- Optional repository variable: `HOF_GUIDE_REPO_NAME`
+  - Default: `hof-guide-v2`
+
+The GitHub App should be installed on the target guide repository and have repository access sufficient to create a repository dispatch event.
+
+To test the full cross-repository flow without merging to `master`/`main`, run the
+`Notify HOF Guide sync` workflow manually in the `hof` repository and provide:
+
+- `before_sha` - existing framework commit to compare from
+- `after_sha` - existing framework commit to compare to
+- optional `changelog_notes` - override for test wording
+- optional `guide_repo` - alternative target repository for safe testing
+
+This triggers the same repository dispatch event used by the push-based automation.
+
+#### In `hof-guide-v2`
+
+No extra secret is needed for the sync workflow itself.
+
+You can also trigger sync manually from **Actions** using the
+`HOF guide sync from framework changes` workflow if you want to test only the guide-side processing.
+
 ## Source modules used for this draft
 
 - `index.js`

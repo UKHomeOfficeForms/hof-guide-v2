@@ -134,29 +134,42 @@ jobs:
             core.setOutput('issue_number', String(issue.number));
             core.setOutput('issue_url', issue.html_url);
 
-      - name: Try to assign issue to Copilot
-        continue-on-error: true
+      - name: Assign issue to Copilot
+        id: assign-copilot
         uses: actions/github-script@v7
         env:
           ISSUE_NUMBER: ${{ steps.create-issue.outputs.issue_number }}
         with:
           script: |
-            await github.rest.issues.addAssignees({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: Number(process.env.ISSUE_NUMBER),
-              assignees: ['copilot']
-            });
+            try {
+              await github.rest.issues.addAssignees({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: Number(process.env.ISSUE_NUMBER),
+                assignees: ['copilot']
+              });
+              core.setOutput('assigned', 'true');
+            } catch (error) {
+              core.setFailed(
+                [
+                  'Failed to auto-assign sync issue to Copilot.',
+                  'Check that Copilot coding agent is enabled for this repository and that workflow token permissions allow assigning issues.',
+                  `Underlying error: ${error.message}`
+                ].join(' ')
+              );
+            }
 
       - name: Add workflow summary
         env:
           ISSUE_URL: ${{ steps.create-issue.outputs.issue_url }}
           ISSUE_ACTION: ${{ steps.create-issue.outputs.issue_action }}
+          COPILOT_ASSIGNED: ${{ steps.assign-copilot.outputs.assigned }}
         run: |
           {
             echo "## HOF guide sync task"
             echo
             echo "- Action: ${ISSUE_ACTION}"
             echo "- Issue: ${ISSUE_URL}"
+            echo "- Copilot assignment: ${COPILOT_ASSIGNED}"
             echo "- Context artifact: hof-sync-context"
           } >> "$GITHUB_STEP_SUMMARY"

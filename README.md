@@ -159,10 +159,12 @@ The cross-repository trigger is designed to work with a GitHub App installation 
 3. This repository builds a sync context from:
    - framework compare diff (`before_sha...after_sha`)
    - latest changelog section
-4. A sync issue is created for Copilot/human review.
+4. A sync issue is created and automatically assigned to Copilot.
 5. Copilot uses the `HOF Guide Sync Agent` (or `hof-doc-sync` skill), opens a PR with `Closes #<sync-issue-number>` in the body, and a workflow comments the PR link back onto the sync issue.
 
 Repeated dispatches for the same framework head SHA update the existing open sync issue instead of creating duplicates.
+
+The issue is still used as orchestration state, but no manual assignment step is required when auto-assignment succeeds. Human review starts at the PR.
 
 ### Setup required
 

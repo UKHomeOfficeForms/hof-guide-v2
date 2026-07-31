@@ -155,18 +155,29 @@ jobs:
                 }
               });
 
-              const assignees = response.data.assignees || [];
-              const assigned = assignees.some(assignee => assignee.login === 'copilot-swe-agent[bot]');
-              if (!assigned) {
-                throw new Error('Copilot assignment request succeeded but copilot-swe-agent[bot] is not on the issue assignee list.');
+              const assignees = response.data?.assignees || [];
+              const assigneeLogins = assignees.map(assignee => assignee.login);
+              const hasCopilotAssignee = assigneeLogins.includes('copilot-swe-agent[bot]') || assigneeLogins.includes('copilot');
+
+              if (!hasCopilotAssignee) {
+                core.warning(
+                  'Copilot assignment API call succeeded but Copilot assignee is not immediately visible in returned assignees. ' +
+                  'Continuing because some org/repo configurations do not expose Copilot in assignee lists immediately.'
+                );
+                core.setOutput('assigned', 'requested');
+                core.setOutput('assigned_details', `assignees_visible=${assigneeLogins.join(',') || 'none'}`);
+              } else {
+                core.setOutput('assigned', 'true');
+                core.setOutput('assigned_details', `assignees_visible=${assigneeLogins.join(',')}`);
               }
-              core.setOutput('assigned', 'true');
             } catch (error) {
+              const status = error?.status ? `HTTP ${error.status}` : 'no-status';
+              const details = error?.response?.data ? JSON.stringify(error.response.data) : error.message;
               core.setFailed(
                 [
                   'Failed to auto-assign sync issue to Copilot.',
                   'Check that Copilot coding agent is enabled for this repository and that HOF_GUIDE_COPILOT_ASSIGN_TOKEN has the required scopes/permissions.',
-                  `Underlying error: ${error.message}`
+                  `Underlying error (${status}): ${details}`
                 ].join(' ')
               );
             }
@@ -179,6 +190,7 @@ jobs:
           ISSUE_URL: ${{ steps.create-issue.outputs.issue_url }}
           ISSUE_ACTION: ${{ steps.create-issue.outputs.issue_action }}
           COPILOT_ASSIGNED: ${{ steps.assign-copilot.outputs.assigned }}
+          COPILOT_ASSIGNED_DETAILS: ${{ steps.assign-copilot.outputs.assigned_details }}
         run: |
           {
             echo "## HOF guide sync task"
@@ -186,5 +198,6 @@ jobs:
             echo "- Action: ${ISSUE_ACTION}"
             echo "- Issue: ${ISSUE_URL}"
             echo "- Copilot assignment: ${COPILOT_ASSIGNED}"
+            echo "- Copilot assignment details: ${COPILOT_ASSIGNED_DETAILS}"
             echo "- Context artifact: hof-sync-context"
           } >> "$GITHUB_STEP_SUMMARY"

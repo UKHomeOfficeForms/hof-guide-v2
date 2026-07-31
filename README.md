@@ -202,6 +202,11 @@ No extra secret is needed for the sync workflow itself.
 You can also trigger sync manually from **Actions** using the
 `HOF guide sync from framework changes` workflow if you want to test only the guide-side processing.
 
+Optional repository variable:
+
+- `HOF_GUIDE_SYNC_BASE_BRANCH`
+  - Base branch used for Copilot agent assignment (default: `main`)
+
 ## Source modules used for this draft
 
 - `index.js`

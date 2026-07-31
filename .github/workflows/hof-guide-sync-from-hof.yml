@@ -139,21 +139,33 @@ jobs:
         uses: actions/github-script@v7
         env:
           ISSUE_NUMBER: ${{ steps.create-issue.outputs.issue_number }}
+          GUIDE_BASE_BRANCH: ${{ vars.HOF_GUIDE_SYNC_BASE_BRANCH || 'main' }}
         with:
           script: |
             try {
-              await github.rest.issues.addAssignees({
+              const response = await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/assignees', {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: Number(process.env.ISSUE_NUMBER),
-                assignees: ['copilot']
+                assignees: ['copilot-swe-agent[bot]'],
+                agent_assignment: {
+                  target_repo: `${context.repo.owner}/${context.repo.repo}`,
+                  base_branch: process.env.GUIDE_BASE_BRANCH,
+                  custom_instructions: 'Use the HOF Guide Sync Agent or hof-doc-sync skill to update docs from framework diff context.'
+                }
               });
+
+              const assignees = response.data.assignees || [];
+              const assigned = assignees.some(assignee => assignee.login === 'copilot-swe-agent[bot]');
+              if (!assigned) {
+                throw new Error('Copilot assignment request succeeded but copilot-swe-agent[bot] is not on the issue assignee list.');
+              }
               core.setOutput('assigned', 'true');
             } catch (error) {
               core.setFailed(
                 [
                   'Failed to auto-assign sync issue to Copilot.',
-                  'Check that Copilot coding agent is enabled for this repository and that workflow token permissions allow assigning issues.',
+                  'Check that Copilot coding agent is enabled for this repository, the custom agent name is available, and workflow token permissions allow assigning issues.',
                   `Underlying error: ${error.message}`
                 ].join(' ')
               );

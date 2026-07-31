@@ -139,10 +139,8 @@ jobs:
       - name: Assign issue to Copilot
         id: assign-copilot
         uses: actions/github-script@v7
-        env:
-          ISSUE_NUMBER: ${{ steps.create-issue.outputs.issue_number }}
-          GUIDE_BASE_BRANCH: ${{ vars.HOF_GUIDE_SYNC_BASE_BRANCH || 'main' }}
         with:
+          github-token: ${{ secrets.HOF_GUIDE_COPILOT_ASSIGN_TOKEN }}
           script: |
             try {
               const response = await github.request('POST /repos/{owner}/{repo}/issues/{issue_number}/assignees', {
@@ -167,11 +165,14 @@ jobs:
               core.setFailed(
                 [
                   'Failed to auto-assign sync issue to Copilot.',
-                  'Check that Copilot coding agent is enabled for this repository, the custom agent name is available, and workflow token permissions allow assigning issues.',
+                  'Check that Copilot coding agent is enabled for this repository and that HOF_GUIDE_COPILOT_ASSIGN_TOKEN has the required scopes/permissions.',
                   `Underlying error: ${error.message}`
                 ].join(' ')
               );
             }
+        env:
+          ISSUE_NUMBER: ${{ steps.create-issue.outputs.issue_number }}
+          GUIDE_BASE_BRANCH: ${{ vars.HOF_GUIDE_SYNC_BASE_BRANCH || 'main' }}
 
       - name: Add workflow summary
         env:

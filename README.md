@@ -197,7 +197,18 @@ This triggers the same repository dispatch event used by the push-based automati
 
 #### In `hof-guide-v2`
 
-No extra secret is needed for the sync workflow itself.
+Set repository secret:
+
+- `HOF_GUIDE_COPILOT_ASSIGN_TOKEN`
+  - PAT used by the workflow to assign sync issues to Copilot with `agent_assignment`.
+  - Recommended: dedicated service account token rather than a personal engineer token.
+  - Classic PAT alternative: `repo` scope.
+  - For fine-grained PAT, grant:
+    - Metadata: Read
+    - Actions: Read and write
+    - Contents: Read and write
+    - Issues: Read and write
+    - Pull requests: Read and write
 
 You can also trigger sync manually from **Actions** using the
 `HOF guide sync from framework changes` workflow if you want to test only the guide-side processing.

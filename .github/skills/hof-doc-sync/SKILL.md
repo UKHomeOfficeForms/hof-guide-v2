@@ -24,11 +24,13 @@ Use this skill to update `hof-guide-v2` from real changes in `UKHomeOfficeForms/
 
 1. Read the sync issue and the generated context payload.
 2. Validate the code diff against the listed docs impact areas.
-3. Update only impacted pages in this guide.
-4. Ensure examples stay aligned with framework behaviour (not assumptions).
-5. Ensure the PR body includes `Closes #<sync-issue-number>`.
-6. Run `yarn build` and resolve any regressions.
-7. Prepare a PR-ready summary with:
+3. If the context says no guide update is required, do not open a PR and report that back on the issue.
+4. Update only impacted pages in this guide.
+5. Ensure examples stay aligned with framework behaviour (not assumptions).
+6. Use a single conventional commit for the actual documentation change. Do not create an `initial plan` commit.
+7. Ensure the PR body includes `Closes #<sync-issue-number>`.
+8. Run `yarn build` and resolve any regressions.
+9. Prepare a PR-ready summary with:
    - what changed in framework terms
    - what changed in guide pages
    - any follow-up gaps requiring human product decisions

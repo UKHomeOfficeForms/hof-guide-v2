@@ -159,12 +159,17 @@ The cross-repository trigger is designed to work with a GitHub App installation 
 3. This repository builds a sync context from:
    - framework compare diff (`before_sha...after_sha`)
    - latest changelog section
-4. A sync issue is created and automatically assigned to Copilot.
-5. Copilot uses the `HOF Guide Sync Agent` (or `hof-doc-sync` skill), opens a PR with `Closes #<sync-issue-number>` in the body, and a workflow comments the PR link back onto the sync issue.
+4. The workflow decides whether the framework diff actually needs guide changes.
+5. If changes are needed, a sync issue is created and automatically assigned to Copilot.
+6. Copilot uses the `HOF Guide Sync Agent` (or `hof-doc-sync` skill), opens a PR with `Closes #<sync-issue-number>` in the body, and a workflow comments the PR link back onto the sync issue.
+7. If no guide changes are needed, the issue is closed without creating a PR.
 
 Repeated dispatches for the same framework head SHA update the existing open sync issue instead of creating duplicates.
+No-op runs reuse the same closed sync issue when one already exists.
 
-The issue is still used as orchestration state, but no manual assignment step is required when auto-assignment succeeds. Human review starts at the PR.
+The issue is still used as orchestration state when a guide update is required. Human review starts at the PR.
+
+The PR title and the commit title should use a single conventional commit-style message, such as `docs(guide-sync): update validation guidance from hof abc1234`.
 
 ### Setup required
 

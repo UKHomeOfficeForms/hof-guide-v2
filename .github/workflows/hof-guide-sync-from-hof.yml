@@ -71,7 +71,11 @@ jobs:
             const syncContext = JSON.parse(fs.readFileSync('.tmp/hof-sync/context.json', 'utf8'));
 
             const shortHead = syncContext.compare.head.slice(0, 7);
-            const title = `Sync HOF Guide from framework changes (${shortHead})`;
+            const needsGuideUpdate = Boolean(syncContext.guide_update_required);
+            const title = needsGuideUpdate
+              ? `Sync HOF Guide from framework changes (${shortHead})`
+              : `No guide update required for framework changes (${shortHead})`;
+            const suggestedTitle = syncContext.suggested_pr_title;
             const syncIssueMarker = '<!-- hof-guide-sync-issue -->';
             const syncHeadMarker = `<!-- hof-guide-sync-head:${syncContext.compare.head} -->`;
             const initialBody = [
@@ -83,14 +87,14 @@ jobs:
               syncHeadMarker
             ].join('\n');
 
-            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+            const syncIssues = await github.paginate(github.rest.issues.listForRepo, {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              state: 'open',
+              state: 'all',
               per_page: 100
             });
 
-            let issue = openIssues.find(item =>
+            let issue = syncIssues.find(item =>
               !item.pull_request &&
               (item.body || '').includes(syncIssueMarker) &&
               (item.body || '').includes(syncHeadMarker)
@@ -119,25 +123,59 @@ jobs:
               '',
               '## Required execution mode',
               '',
-              '- Assign this issue to Copilot.',
-              '- Select the `HOF Guide Sync Agent` custom agent (or tell Copilot to use `hof-doc-sync`).',
-              `- When opening the PR, include \`Closes #${issue.number}\` in the PR body.`,
-              '- Keep this issue as the source of truth for human-in-the-loop review.'
+              needsGuideUpdate
+                ? [
+                    '- Assign this issue to Copilot.',
+                    '- Select the `HOF Guide Sync Agent` custom agent (or tell Copilot to use `hof-doc-sync`).',
+                    `- Use the suggested PR / commit title: \`${suggestedTitle}\`.`,
+                    `- When opening the PR, include \`Closes #${issue.number}\` in the PR body.`,
+                    '- Do not create a planning-only commit.',
+                    '- Keep this issue as the source of truth for human-in-the-loop review.'
+                  ].join('\n')
+                : [
+                    '- No guide update is required for this framework change.',
+                    '- Do not assign Copilot.',
+                    '- Do not open a PR.',
+                    '- The workflow will close this issue automatically after triage.'
+                  ].join('\n')
             ].join('\n');
 
-            await github.rest.issues.update({
+            const issueUpdate = {
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue.number,
               title,
-              body: finalBody
-            });
+              body: finalBody,
+              state: needsGuideUpdate ? 'open' : 'closed'
+            };
+
+            if (!needsGuideUpdate) {
+              issueUpdate.state_reason = 'not_planned';
+            }
+
+            await github.rest.issues.update(issueUpdate);
+
+            if (!needsGuideUpdate && issue.state !== 'closed') {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: [
+                  'The framework diff did not map to any guide updates, so no PR was opened.',
+                  '',
+                  'If this looks unexpected, re-run the sync workflow manually with a narrower compare range and inspect the generated context artifact.'
+                ].join('\n')
+              });
+            }
 
             core.setOutput('issue_number', String(issue.number));
             core.setOutput('issue_url', issue.html_url);
+            core.setOutput('should_assign_copilot', needsGuideUpdate ? 'true' : 'false');
+            core.setOutput('suggested_pr_title', suggestedTitle || '');
 
       - name: Assign issue to Copilot
         id: assign-copilot
+        if: steps.create-issue.outputs.should_assign_copilot == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.HOF_GUIDE_COPILOT_ASSIGN_TOKEN }}
@@ -151,7 +189,13 @@ jobs:
                 agent_assignment: {
                   target_repo: `${context.repo.owner}/${context.repo.repo}`,
                   base_branch: process.env.GUIDE_BASE_BRANCH,
-                  custom_instructions: 'Use the HOF Guide Sync Agent or hof-doc-sync skill to update docs from framework diff context.'
+                  custom_instructions: [
+                    'Use the HOF Guide Sync Agent or hof-doc-sync skill to update docs from the framework diff context.',
+                    `Suggested PR / commit title: ${process.env.SUGGESTED_PR_TITLE}`,
+                    'Only open a PR after making at least one real documentation change.',
+                    'Use a single conventional commit for the actual doc update. Do not create an initial planning commit.',
+                    `If no documentation changes are required after reviewing the diff, do not open a PR and report that back on issue #${process.env.ISSUE_NUMBER}.`
+                  ].join(' ')
                 }
               });
 
@@ -184,6 +228,7 @@ jobs:
         env:
           ISSUE_NUMBER: ${{ steps.create-issue.outputs.issue_number }}
           GUIDE_BASE_BRANCH: ${{ vars.HOF_GUIDE_SYNC_BASE_BRANCH || 'main' }}
+          SUGGESTED_PR_TITLE: ${{ steps.create-issue.outputs.suggested_pr_title }}
 
       - name: Add workflow summary
         env:
@@ -191,13 +236,29 @@ jobs:
           ISSUE_ACTION: ${{ steps.create-issue.outputs.issue_action }}
           COPILOT_ASSIGNED: ${{ steps.assign-copilot.outputs.assigned }}
           COPILOT_ASSIGNED_DETAILS: ${{ steps.assign-copilot.outputs.assigned_details }}
+          SHOULD_ASSIGN_COPILOT: ${{ steps.create-issue.outputs.should_assign_copilot }}
+          SUGGESTED_PR_TITLE: ${{ steps.create-issue.outputs.suggested_pr_title }}
         run: |
           {
             echo "## HOF guide sync task"
             echo
             echo "- Action: ${ISSUE_ACTION}"
             echo "- Issue: ${ISSUE_URL}"
-            echo "- Copilot assignment: ${COPILOT_ASSIGNED}"
-            echo "- Copilot assignment details: ${COPILOT_ASSIGNED_DETAILS}"
+            if [ "${SHOULD_ASSIGN_COPILOT}" = "true" ]; then
+              echo "- Guide update required: yes"
+            else
+              echo "- Guide update required: no"
+            fi
+            if [ "${SHOULD_ASSIGN_COPILOT}" = "true" ]; then
+              echo "- Suggested PR / commit title: ${SUGGESTED_PR_TITLE}"
+            else
+              echo "- Suggested PR / commit title: n/a"
+            fi
+            if [ "${SHOULD_ASSIGN_COPILOT}" = "true" ]; then
+              echo "- Copilot assignment: ${COPILOT_ASSIGNED}"
+              echo "- Copilot assignment details: ${COPILOT_ASSIGNED_DETAILS}"
+            else
+              echo "- Copilot assignment: skipped"
+            fi
             echo "- Context artifact: hof-sync-context"
           } >> "$GITHUB_STEP_SUMMARY"

@@ -76,6 +76,12 @@ const commitSummaries = commits.map(commit => ({
   author: commit.commit?.author?.name || ''
 }));
 
+const impactedDocGroups = [...new Set([...impactedDocs].map(path => path.split('/')[0]))];
+const guideUpdateRequired = impactedDocs.size > 0;
+const guideChangeSummary = impactedDocGroups.length
+  ? impactedDocGroups.map(group => group.replace(/-/g, ' ')).join(', ')
+  : 'guide';
+
 const context = {
   generated_at: new Date().toISOString(),
   framework_repo: `${owner}/${repo}`,
@@ -89,7 +95,13 @@ const context = {
   file_count: files.length,
   commits: commitSummaries,
   changed_files: changedFiles,
-  suggested_docs_to_review: [...impactedDocs]
+  suggested_docs_to_review: [...impactedDocs],
+  suggested_doc_groups: impactedDocGroups,
+  guide_update_required: guideUpdateRequired,
+  guide_change_summary: guideChangeSummary,
+  suggested_pr_title: guideUpdateRequired
+    ? `docs(guide-sync): update ${guideChangeSummary} guidance from hof ${head.slice(0, 7)}`
+    : null
 };
 
 const report = `# HOF framework -> guide sync task
@@ -115,6 +127,13 @@ ${changedFiles.map(file => `- \`${file.filename}\` (${file.status}, +${file.addi
 ## Suggested guide pages to review
 
 ${[...impactedDocs].map(path => `- \`${path}\``).join('\n') || '- Manual triage required (no mapping matched)'}
+
+## Sync decision
+
+- Guide update required: ${guideUpdateRequired ? 'yes' : 'no'}
+- Suggested change summary: ${guideChangeSummary}
+- Suggested PR / commit title: ${guideUpdateRequired ? context.suggested_pr_title : 'n/a'}
+- ${guideUpdateRequired ? 'The workflow should assign Copilot and open a PR.' : 'The workflow should close the issue without assigning Copilot or opening a PR.'}
 
 ## Agent instructions
 

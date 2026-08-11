@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1100" viewBox="0 0 1600 1100" role="img" aria-labelledby="title desc">
+  <title id="title">HOF Guide v2 sync flow</title>
+  <desc id="desc">A high-level diagram showing how a change merged to the HOF framework triggers the guide sync process and results in a pull request in hof-guide-v2.</desc>
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .lane { fill: #f3f2f1; stroke: #b1b4b6; stroke-width: 2; }
+      .box { fill: #ffffff; stroke: #1d70b8; stroke-width: 3; rx: 18; ry: 18; }
+      .box-secondary { fill: #ffffff; stroke: #00703c; stroke-width: 3; rx: 18; ry: 18; }
+      .box-warning { fill: #ffffff; stroke: #d4351c; stroke-width: 3; rx: 18; ry: 18; }
+      .heading { font: 700 26px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .text { font: 400 20px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .small { font: 400 18px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .label { font: 700 18px "GDS Transport", Arial, sans-serif; fill: #1d70b8; text-transform: uppercase; letter-spacing: 0.06em; }
+      .arrow { stroke: #0b0c0c; stroke-width: 4; fill: none; marker-end: url(#arrowhead); }
+      .dashed { stroke-dasharray: 10 8; }
+      .note { fill: #f8f8f8; stroke: #b1b4b6; stroke-width: 2; rx: 14; ry: 14; }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 z" fill="#0b0c0c" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1600" height="1100" />
+
+  <text class="heading" x="80" y="70">HOF Guide v2 automation flow</text>
+  <text class="small" x="80" y="105">From merge in the HOF framework to guide update PR in hof-guide-v2</text>
+
+  <rect class="lane" x="60" y="150" width="1480" height="210" rx="18" ry="18" />
+  <rect class="lane" x="60" y="390" width="1480" height="320" rx="18" ry="18" />
+  <rect class="lane" x="60" y="740" width="1480" height="260" rx="18" ry="18" />
+
+  <text class="label" x="90" y="190">1. HOF framework</text>
+  <text class="label" x="90" y="430">2. Guide sync orchestration</text>
+  <text class="label" x="90" y="780">3. Copilot + human review</text>
+
+  <rect class="box" x="150" y="220" width="300" height="90" />
+  <text class="text" x="300" y="255" text-anchor="middle">
+    <tspan x="300" dy="0">Change merged to</tspan>
+    <tspan x="300" dy="28">master / main in hof</tspan>
+  </text>
+
+  <rect class="box" x="540" y="220" width="380" height="90" />
+  <text class="text" x="730" y="255" text-anchor="middle">
+    <tspan x="730" dy="0">notify-hof-guide-sync.yml runs</tspan>
+    <tspan x="730" dy="28">on push or manual dispatch</tspan>
+  </text>
+
+  <rect class="box" x="1010" y="220" width="430" height="90" />
+  <text class="text" x="1225" y="248" text-anchor="middle">
+    <tspan x="1225" dy="0">GitHub App token + dispatch</tspan>
+    <tspan x="1225" dy="28">repository_dispatch to hof-guide-v2</tspan>
+  </text>
+
+  <path class="arrow" d="M450 265 H540" />
+  <path class="arrow" d="M920 265 H1010" />
+
+  <rect class="box" x="160" y="480" width="360" height="100" />
+  <text class="text" x="340" y="514" text-anchor="middle">
+    <tspan x="340" dy="0">hof-guide-sync-from-hof.yml runs</tspan>
+    <tspan x="340" dy="28">in hof-guide-v2</tspan>
+  </text>
+
+  <rect class="box" x="590" y="465" width="420" height="130" />
+  <text class="text" x="800" y="500" text-anchor="middle">
+    <tspan x="800" dy="0">Fetch compare diff from hof</tspan>
+    <tspan x="800" dy="28">Build sync context + report</tspan>
+    <tspan x="800" dy="28">Decide whether a guide update is needed</tspan>
+  </text>
+
+  <rect class="box" x="1080" y="465" width="390" height="130" />
+  <text class="text" x="1275" y="500" text-anchor="middle">
+    <tspan x="1275" dy="0">Create or update sync issue</tspan>
+    <tspan x="1275" dy="28">Assign to Copilot when needed</tspan>
+    <tspan x="1275" dy="28">Issue becomes orchestration state</tspan>
+  </text>
+
+  <path class="arrow" d="M520 530 H590" />
+  <path class="arrow" d="M1010 530 H1080" />
+
+  <rect class="note" x="160" y="640" width="1310" height="45" />
+  <text class="small" x="180" y="670">
+    Sync issue includes changelog summary, compare URL, changed files, suggested docs, and markers used for de-duplication and PR tracking. No-op diffs are closed without a PR.
+  </text>
+
+  <rect class="box-secondary" x="160" y="830" width="360" height="90" />
+  <text class="text" x="340" y="865" text-anchor="middle">
+    <tspan x="340" dy="0">Copilot cloud agent picks up</tspan>
+    <tspan x="340" dy="28">the sync issue</tspan>
+  </text>
+
+  <rect class="box-secondary" x="570" y="830" width="400" height="90" />
+  <text class="text" x="770" y="865" text-anchor="middle">
+    <tspan x="770" dy="0">HOF Guide Sync Agent / Skill</tspan>
+    <tspan x="770" dy="28">updates guide pages</tspan>
+  </text>
+
+  <rect class="box-warning" x="1010" y="830" width="430" height="90" />
+  <text class="text" x="1225" y="865" text-anchor="middle">
+    <tspan x="1225" dy="0">Copilot opens PR in hof-guide-v2</tspan>
+    <tspan x="1225" dy="28">PR body includes Closes #issue</tspan>
+  </text>
+
+  <path class="arrow" d="M520 875 H570" />
+  <path class="arrow" d="M970 875 H1010" />
+
+  <path class="arrow dashed" d="M1275 595 C1275 690, 1210 690, 1210 740" />
+  <rect class="note" x="1040" y="690" width="420" height="40" />
+  <text class="small" x="1250" y="716" text-anchor="middle">If no guide update is needed, the issue is closed and no PR is opened.</text>
+
+  <path class="arrow dashed" d="M1225 920 C1225 1000, 600 1000, 600 965" />
+  <text class="small" x="760" y="1015" text-anchor="middle">
+    First human involvement: review the PR, then merge it
+  </text>
+
+  <path class="arrow dashed" d="M1225 920 C1225 980, 1230 980, 1230 965" opacity="0" />
+</svg>

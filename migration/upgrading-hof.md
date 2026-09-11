@@ -65,6 +65,12 @@ Check Node version and Vite/Rollup optional dependencies.
 
 Changing the session secret invalidates sessions.
 
+### Welsh cookies page text falls back to English
+
+Framework update `9e1b80c` adds missing Welsh cookie banner and cookies page translation entries.
+
+If your service ships its own Welsh translation files, add the equivalent cookie keys there as part of the upgrade so bilingual pages stay consistent.
+
 ### Email stops working after v24
 
 Old built-in email functionality was removed. Implement service-owned email logic.

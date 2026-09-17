@@ -53,6 +53,20 @@ module.exports = {
 };
 ```
 
+Relative date comparison:
+
+```js
+module.exports = {
+  'appointment-date': {
+    validate: [
+      'required',
+      'date',
+      { type: 'before', arguments: [1, 'day'] }
+    ]
+  }
+};
+```
+
 Options validator:
 
 ```js
@@ -128,7 +142,7 @@ Check whether the validator supports empty strings. If it does not, make the val
 
 ### Date arguments are unclear
 
-Date validators operate on `YYYY-MM-DD` date strings. Use the date component when users enter day, month and year separately.
+Date validators operate on strict `YYYY-MM-DD` date strings. Use zero-padded month and day values, for example `2024-01-01`, and use the date component when users enter day, month and year separately.
 
 ## Related topics
 

@@ -24,6 +24,8 @@ Read the changelog for every version between your current version and the target
 
 Check deprecations before updating production services.
 
+For HOF 24.6.0, the release notes record that Notify failures preserve the original errors and response payloads, duplicate failure logging is removed, and Notify email references use Node.js `crypto.randomUUID`.
+
 ## Examples
 
 Upgrade checklist:

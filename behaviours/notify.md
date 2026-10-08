@@ -106,7 +106,7 @@ The resolved recipient is not an email address string. Check the field key or re
 
 ### Notify errors appear as server errors
 
-The behaviour passes Notify failures to error middleware. If users need a specific recovery journey, wrap Notify in a service-owned behaviour.
+The behaviour logs a Notify failure once and passes the original error to error middleware, including its response payload when available. If users need a specific recovery journey, wrap Notify in a service-owned behaviour without replacing the original error.
 
 ## Related topics
 

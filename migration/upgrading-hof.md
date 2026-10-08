@@ -69,6 +69,10 @@ Changing the session secret invalidates sessions.
 
 Old built-in email functionality was removed. Implement service-owned email logic.
 
+### Handling Notify errors after v24.5.2
+
+The Notify behaviour now propagates the original error, including its response payload when available, and logs it once. Update custom error handling that relied on a replacement error or duplicate failure logs.
+
 ## Related topics
 
 - [Version 24](v24.md)

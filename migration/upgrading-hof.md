@@ -67,7 +67,7 @@ Changing the session secret invalidates sessions.
 
 ### Welsh cookies page text falls back to English
 
-Framework update `9e1b80c` adds missing Welsh cookie banner and cookies page translation entries.
+Framework update v.[24.5.1](https://github.com/UKHomeOfficeForms/hof/releases/tag/v24.5.1) adds missing Welsh cookie banner and cookies page translation entries.
 
 If your service ships its own Welsh translation files, add the equivalent cookie keys there as part of the upgrade so bilingual pages stay consistent.
 

@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1320" viewBox="0 0 1400 1320" role="img" aria-labelledby="title desc">
+  <!-- Repository workflow diagram; not part of the published guide. -->
+  <title id="title">HOF Guide v2 sync workflow</title>
+  <desc id="desc">A flowchart showing how a HOF framework change triggers guide analysis, branches according to whether documentation changes are required, and leads to a Copilot pull request and human review.</desc>
+  <defs>
+    <style>
+      .background { fill: #ffffff; }
+      .lane { fill: #f3f2f1; stroke: #b1b4b6; stroke-width: 2; }
+      .step { fill: #ffffff; stroke: #1d70b8; stroke-width: 3; }
+      .agent-step { fill: #ffffff; stroke: #00703c; stroke-width: 3; }
+      .review-step { fill: #fff7bf; stroke: #594d00; stroke-width: 3; }
+      .no-update-step { fill: #ffffff; stroke: #505a5f; stroke-width: 3; }
+      .decision { fill: #ffffff; stroke: #d4351c; stroke-width: 3; }
+      .title { font: 700 34px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .subtitle { font: 400 22px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .lane-title { font: 700 19px "GDS Transport", Arial, sans-serif; fill: #1d70b8; letter-spacing: 0.05em; }
+      .box-title { font: 700 21px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .box-text { font: 400 19px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .branch-label { font: 700 19px "GDS Transport", Arial, sans-serif; fill: #0b0c0c; }
+      .branch-label-background { fill: #ffffff; stroke: #505a5f; stroke-width: 2; }
+      .arrow { fill: none; stroke: #0b0c0c; stroke-width: 4; marker-end: url(#arrowhead); }
+    </style>
+    <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#0b0c0c" />
+    </marker>
+  </defs>
+
+  <rect class="background" width="1400" height="1320" />
+
+  <text class="title" x="70" y="60">HOF Guide v2 sync workflow</text>
+  <text class="subtitle" x="70" y="98">How a framework change becomes a reviewed guide update</text>
+
+  <rect class="lane" x="50" y="135" width="1300" height="250" rx="18" />
+  <text class="lane-title" x="80" y="175">1. HOF FRAMEWORK</text>
+
+  <rect class="step" x="100" y="215" width="300" height="110" rx="16" />
+  <text text-anchor="middle" x="250" y="252">
+    <tspan class="box-title" x="250">Framework change</tspan>
+    <tspan class="box-text" x="250" dy="31">Pushed to master or main,</tspan>
+    <tspan class="box-text" x="250" dy="26">or started manually</tspan>
+  </text>
+
+  <rect class="step" x="510" y="215" width="360" height="110" rx="16" />
+  <text text-anchor="middle" x="690" y="250">
+    <tspan class="box-title" x="690">Notify workflow runs</tspan>
+    <tspan class="box-text" x="690" dy="31">Collects commit SHAs and</tspan>
+    <tspan class="box-text" x="690" dy="26">the latest changelog notes</tspan>
+  </text>
+
+  <rect class="step" x="980" y="215" width="320" height="110" rx="16" />
+  <text text-anchor="middle" x="1140" y="250">
+    <tspan class="box-title" x="1140">Dispatch event sent</tspan>
+    <tspan class="box-text" x="1140" dy="31">GitHub App sends</tspan>
+    <tspan class="box-text" x="1140" dy="26">hof-framework-changed</tspan>
+  </text>
+
+  <path class="arrow" d="M400 270 H510" />
+  <path class="arrow" d="M870 270 H980" />
+
+  <rect class="lane" x="50" y="425" width="1300" height="440" rx="18" />
+  <text class="lane-title" x="80" y="465">2. GUIDE SYNC ORCHESTRATION</text>
+
+  <path class="arrow" d="M1140 325 V405 H250 V510" />
+
+  <rect class="step" x="100" y="510" width="300" height="125" rx="16" />
+  <text text-anchor="middle" x="250" y="548">
+    <tspan class="box-title" x="250">Guide workflow runs</tspan>
+    <tspan class="box-text" x="250" dy="31">hof-guide-sync-from-hof.yml</tspan>
+    <tspan class="box-text" x="250" dy="26">starts in hof-guide-v2</tspan>
+  </text>
+
+  <rect class="step" x="470" y="490" width="360" height="165" rx="16" />
+  <text text-anchor="middle" x="650" y="525">
+    <tspan class="box-title" x="650">Build sync context</tspan>
+    <tspan class="box-text" x="650" dy="31">Fetch the framework diff</tspan>
+    <tspan class="box-text" x="650" dy="26">Map changed files to guide pages</tspan>
+    <tspan class="box-text" x="650" dy="26">Create the report and artifact</tspan>
+  </text>
+
+  <polygon class="decision" points="1030,485 1170,572 1030,659 890,572" />
+  <text text-anchor="middle" x="1030" y="552">
+    <tspan class="box-title" x="1030">Guide update</tspan>
+    <tspan class="box-title" x="1030" dy="28">required?</tspan>
+  </text>
+
+  <path class="arrow" d="M400 572 H470" />
+  <path class="arrow" d="M830 572 H890" />
+
+  <path class="arrow" d="M990 634 V690 H720 V735" />
+  <rect class="branch-label-background" x="830" y="674" width="58" height="34" rx="8" />
+  <text class="branch-label" x="859" y="698" text-anchor="middle">Yes</text>
+
+  <rect class="step" x="540" y="735" width="360" height="100" rx="16" />
+  <text text-anchor="middle" x="720" y="770">
+    <tspan class="box-title" x="720">Open or update sync issue</tspan>
+    <tspan class="box-text" x="720" dy="31">Assign the issue to Copilot</tspan>
+  </text>
+
+  <path class="arrow" d="M1070 634 V690 H1190 V735" />
+  <rect class="branch-label-background" x="1110" y="674" width="58" height="34" rx="8" />
+  <text class="branch-label" x="1139" y="698" text-anchor="middle">No</text>
+
+  <rect class="no-update-step" x="1040" y="735" width="300" height="100" rx="16" />
+  <text text-anchor="middle" x="1190" y="770">
+    <tspan class="box-title" x="1190">Close the sync issue</tspan>
+    <tspan class="box-text" x="1190" dy="29">Do not assign Copilot</tspan>
+    <tspan class="box-text" x="1190" dy="24">or open a PR</tspan>
+  </text>
+
+  <rect class="lane" x="50" y="905" width="1300" height="345" rx="18" />
+  <text class="lane-title" x="80" y="945">3. COPILOT AND HUMAN REVIEW</text>
+
+  <path class="arrow" d="M720 835 V975 H220 V1010" />
+  <text class="branch-label" x="420" y="965">Copilot assignment</text>
+
+  <rect class="agent-step" x="90" y="1010" width="260" height="145" rx="16" />
+  <text text-anchor="middle" x="220" y="1045">
+    <tspan class="box-title" x="220">Copilot starts work</tspan>
+    <tspan class="box-text" x="220" dy="31">Uses the sync issue</tspan>
+    <tspan class="box-text" x="220" dy="26">as the source of truth</tspan>
+  </text>
+
+  <rect class="agent-step" x="400" y="1010" width="270" height="145" rx="16" />
+  <text text-anchor="middle" x="535" y="1045">
+    <tspan class="box-title" x="535">Agent and skill</tspan>
+    <tspan class="box-text" x="535" dy="31">Review the real diff and</tspan>
+    <tspan class="box-text" x="535" dy="26">update affected guide pages</tspan>
+  </text>
+
+  <rect class="agent-step" x="720" y="1010" width="270" height="145" rx="16" />
+  <text text-anchor="middle" x="855" y="1045">
+    <tspan class="box-title" x="855">Validate changes</tspan>
+    <tspan class="box-text" x="855" dy="31">Keep examples aligned</tspan>
+    <tspan class="box-text" x="855" dy="26">and run yarn build</tspan>
+  </text>
+
+  <rect class="review-step" x="1040" y="985" width="270" height="195" rx="16" />
+  <text text-anchor="middle" x="1175" y="1020">
+    <tspan class="box-title" x="1175">PR and human review</tspan>
+    <tspan class="box-text" x="1175" dy="31">Open a PR with Closes #issue</tspan>
+    <tspan class="box-text" x="1175" dy="26">Link the PR back to the issue</tspan>
+    <tspan class="box-text" x="1175" dy="26">Review and merge the PR</tspan>
+  </text>
+
+  <path class="arrow" d="M350 1082 H400" />
+  <path class="arrow" d="M670 1082 H720" />
+  <path class="arrow" d="M990 1082 H1040" />
+
+  <text class="subtitle" x="700" y="1290" text-anchor="middle">Human review starts only after Copilot opens the pull request.</text>
+</svg>

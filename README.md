@@ -164,6 +164,8 @@ The cross-repository trigger is designed to work with a GitHub App installation 
 6. Copilot uses the `HOF Guide Sync Agent` (or `hof-doc-sync` skill), opens a PR with `Closes #<sync-issue-number>` in the body, and a workflow comments the PR link back onto the sync issue.
 7. If no guide changes are needed, the issue is closed without creating a PR.
 
+For every PR linked to a guide sync issue, the PR-to-issue tracking workflow requests a review from `@UKHomeOfficeForms/hof-framework-contributors`. Draft PRs receive the review request when marked ready for review. The team must have access to this repository for GitHub to accept the request.
+
 Repeated dispatches for the same framework head SHA update the existing open sync issue instead of creating duplicates.
 No-op runs reuse the same closed sync issue when one already exists.
 

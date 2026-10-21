@@ -38,10 +38,12 @@ Choose the lifecycle method that matches the task:
 
 - use `configure` to modify field or step options
 - use `process` to modify submitted values before validation
-- use `validate` for custom validation
+- use `validate` for custom validation that cannot be expressed with built-in validators
 - use `saveValues` to change what is stored in the session
 - use `locals` to add data used by the view
 - use `successHandler` for final submission or notification
+
+For date fields, use built-in validators such as `date`, `before`, `after` and `over18` where possible. They validate normalized `YYYY-MM-DD` values after processing, which is usually safer than re-implementing date parsing in a custom controller.
 
 ## Examples
 
@@ -124,4 +126,3 @@ Do not catch errors and continue as if the request succeeded. Pass errors to `ne
 - [Behaviours overview](../behaviours/index.md)
 - [Validation](../building-services/validation.md)
 - [Formatters](../building-services/formatters.md)
-

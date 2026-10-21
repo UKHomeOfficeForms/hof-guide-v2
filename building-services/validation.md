@@ -24,6 +24,8 @@ Use named built-in validators for common rules. Use custom validators for servic
 
 Avoid doing API calls inside simple field validators. Put external calls in behaviours or models where errors can be handled clearly.
 
+For date rules, prefer built-in validators such as `date`, `before`, `after` and `over18`. They work with strict `YYYY-MM-DD` values, so pass zero-padded dates such as `2024-01-01` instead of relying on loosely formatted input.
+
 ## Examples
 
 Required email:

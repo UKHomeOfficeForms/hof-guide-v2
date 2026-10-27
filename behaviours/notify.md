@@ -13,6 +13,7 @@ The behaviour is configured with:
 - `recipient`
 - `subject`
 - `template`
+- optional `emailReplyToId` (default reply-to ID)
 - optional `parse`
 - optional `attachment`
 
@@ -50,11 +51,18 @@ const notify = require('hof').components.notify;
 module.exports = notify({
   notifyApiKey: process.env.NOTIFY_API_KEY,
   notifyTemplate: process.env.NOTIFY_TEMPLATE_ID,
+  emailReplyToId: process.env.NOTIFY_REPLY_TO_ID,
   recipient: 'email-address',
   subject: 'Application received',
   template: path.resolve(__dirname, '../emails/application-received.txt')
 });
 ```
+
+`emailReplyToId` is optional. When configured, it is used for emails unless a
+per-email value overrides it. For direct use of the exported `Notify` class,
+`send()` accepts `emailReplyToId` on its email object; `sendEmail()` accepts
+it as its fourth argument. An empty per-email value is omitted, so GOV.UK
+Notify uses the service's default reply-to address.
 
 Route usage:
 

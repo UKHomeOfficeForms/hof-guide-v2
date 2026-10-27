@@ -34,6 +34,8 @@ Closing the dialog still requests a session refresh. That request now uses `fetc
 
 For HOF 24.6.0, the release notes record that Notify failures preserve the original errors and response payloads, duplicate failure logging is removed, and Notify email references use Node.js `crypto.randomUUID`.
 
+HOF 24.7.0 adds optional `emailReplyToId` configuration for Notify, with a per-email override for direct `Notify` calls. If no reply-to ID is configured, or an empty per-email override is supplied, the option is omitted so GOV.UK Notify uses the service's default reply-to address. See [Notify](../behaviours/notify.md).
+
 ## Examples
 
 Upgrade checklist:

@@ -6,11 +6,12 @@ on:
       - opened
       - edited
       - reopened
+      - ready_for_review
 
 permissions:
   contents: read
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   comment-linked-sync-issue:
@@ -24,6 +25,7 @@ jobs:
             const body = pr.body || '';
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            let isSyncPr = false;
 
             const issueMatches = [...body.matchAll(/\b(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?)\s+#(\d+)\b/gi)];
             const issueNumbers = [...new Set(issueMatches.map(match => Number(match[1])).filter(Boolean))];
@@ -45,6 +47,7 @@ jobs:
                 core.info(`Issue #${issueNumber} is not a HOF guide sync issue.`);
                 continue;
               }
+              isSyncPr = true;
 
               const comments = await github.paginate(github.rest.issues.listComments, {
                 owner,
@@ -78,4 +81,22 @@ jobs:
                 issue_number: issueNumber,
                 body: commentBody
               });
+            }
+
+            if (isSyncPr && pr.state === 'open' && !pr.draft) {
+              const team = 'hof-framework-contributors';
+              const { data: reviewers } = await github.rest.pulls.listRequestedReviewers({
+                owner,
+                repo,
+                pull_number: pr.number
+              });
+
+              if (!reviewers.teams.some(requestedTeam => requestedTeam.slug === team)) {
+                await github.rest.pulls.requestReviewers({
+                  owner,
+                  repo,
+                  pull_number: pr.number,
+                  team_reviewers: [team]
+                });
+              }
             }

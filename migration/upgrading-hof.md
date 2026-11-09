@@ -24,6 +24,10 @@ Read the changelog for every version between your current version and the target
 
 Check deprecations before updating production services.
 
+### HOF 24.7.1: dependency updates
+
+HOF 24.7.1 updates `minimatch` and `release-it` and pins `undici`. The release notes list dependency maintenance only and do not describe application-facing migration steps. Follow the standard upgrade process above, including installing dependencies and testing the service.
+
 ### HOF 24.5.1: session timeout dialog no longer uses jQuery
 
 HOF 24.5.1 removes jQuery from the framework dependencies and replaces the session timeout dialog's jQuery operations with native browser APIs. If service code imports jQuery only because HOF provided it, add jQuery as a direct service dependency or remove that use.

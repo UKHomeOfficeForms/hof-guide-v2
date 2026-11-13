@@ -34,6 +34,8 @@ Closing the dialog still requests a session refresh. That request now uses `fetc
 
 For HOF 24.6.0, the release notes record that Notify failures preserve the original errors and response payloads, duplicate failure logging is removed, and Notify email references use Node.js `crypto.randomUUID`.
 
+HOF 24.7.2 fixes the minimatch import for compatibility with minimatch 11.
+
 ## Examples
 
 Upgrade checklist:
